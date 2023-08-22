@@ -1,45 +1,24 @@
 import React from "react";
 import { twMerge } from "tailwind-merge";
-import { type Todo } from "~/pages";
+import { type Todo, useTodos } from "~/contexts/TodosContext";
 
 type Props = {
   todo: Todo;
+  indentLevel: number;
 };
 
-export function TodoItem({ todo }: Props) {
-  const { text, completed } = todo;
+export function TodoItem({ todo, indentLevel }: Props) {
+  const { completeTodo, changeTodoText, indentTodo } = useTodos();
 
-  const handleKeypress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      addNewTodo();
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      indentTodo(todo.id);
     }
   };
 
-  const completeTodo = (id: number) => {
-    const newTodos = todos.map((todo) => {
-      if (todo.id === id) {
-        todo.completed = !todo.completed;
-      }
-      return todo;
-    });
-    setTodos(newTodos);
-  };
-
-  const changeTodoText = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    id: number
-  ) => {
-    const newTodos = todos.map((todo) => {
-      if (todo.id === id) {
-        todo.text = event.currentTarget.value;
-      }
-      return todo;
-    });
-    setTodos(newTodos);
-  };
-
   return (
-    <li className="" key={todo.id}>
+    <li style={{ marginLeft: `${indentLevel * 20}px` }} key={todo.id}>
       <div className="flex gap-2">
         <input
           type="checkbox"
@@ -50,7 +29,8 @@ export function TodoItem({ todo }: Props) {
         />
         <input
           disabled={todo.completed}
-          onChange={(e) => changeTodoText(e, todo.id)}
+          onKeyDown={(event) => handleKeyDown(event)}
+          onChange={(event) => changeTodoText(event, todo.id)}
           value={todo.text}
           className={twMerge(
             "border-none bg-transparent disabled:opacity-50",
@@ -58,6 +38,17 @@ export function TodoItem({ todo }: Props) {
           )}
         />
       </div>
+      {todo.children.length >= 1 && (
+        <ul>
+          {todo.children.map((nestedTodo) => (
+            <TodoItem
+              key={nestedTodo.id}
+              todo={nestedTodo}
+              indentLevel={indentLevel + 1}
+            />
+          ))}
+        </ul>
+      )}
     </li>
   );
 }

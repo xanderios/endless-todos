@@ -1,31 +1,20 @@
 import Head from "next/head";
 import React, { useEffect } from "react";
-import { TodosContext } from "~/contexts/TodosContext";
-
-export interface Todo {
-  text: string;
-  completed: boolean;
-  id: number;
-  children?: Todo[];
-}
-
-interface TodosState {
-  todos: Todo[],
-  changeTodoText: (
-    event: React.ChangeEvent<HTMLInputElement>,
-    id: number
-  ) => void,
-  completeTodo: (id: number) => void
-}
-
-
+import { TodoItem } from "~/components/TodoItem";
+import { useTodos } from "~/contexts/TodosContext";
 
 export default function Home() {
-  
+  const { todos, newTodoInput, handleNewTodoChange, addNewTodo } = useTodos();
 
   useEffect(() => {
     document.body.className = "bg-charcoal-700";
   });
+
+  const handleKeypress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      addNewTodo();
+    }
+  };
 
   return (
     <>
@@ -40,8 +29,7 @@ export default function Home() {
             Endless Todos
           </h1>
         </div>
-          <TodosContext>
-          <main className="mx-auto max-w-md justify-center pt-32 text-white">
+        <main className="mx-auto max-w-md justify-center pt-32 text-white">
           <input
             type="text"
             placeholder="Add todo Item"
@@ -51,18 +39,18 @@ export default function Home() {
             onChange={handleNewTodoChange}
           />
 
-          <ul className="mt-2">
-            {todos.map((todo) => {
-              if(todo.children?.length >= 1) {
-                <TodoItem todos={todos} />
-              }
-              return (
-                
-              )
-            })}
-          </ul>
+          <div className="mt-2">
+            {todos.length >= 1 ? (
+              <ul>
+                {todos.map((todo) => (
+                  <TodoItem key={todo.id} todo={todo} indentLevel={0} />
+                ))}
+              </ul>
+            ) : (
+              <p>No todos</p>
+            )}
+          </div>
         </main>
-          </TodosContext>
       </div>
     </>
   );
