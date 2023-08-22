@@ -1,9 +1,27 @@
 import Head from "next/head";
-import { useEffect } from "react";
-// import { api } from "~/utils/api";
+import React, { useEffect } from "react";
+import { TodosContext } from "~/contexts/TodosContext";
+
+export interface Todo {
+  text: string;
+  completed: boolean;
+  id: number;
+  children?: Todo[];
+}
+
+interface TodosState {
+  todos: Todo[],
+  changeTodoText: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    id: number
+  ) => void,
+  completeTodo: (id: number) => void
+}
+
+
 
 export default function Home() {
-  // const hello = api.example.hello.useQuery({ text: "from tRPC" });
+  
 
   useEffect(() => {
     document.body.className = "bg-charcoal-700";
@@ -22,12 +40,29 @@ export default function Home() {
             Endless Todos
           </h1>
         </div>
-        <main className="mx-auto max-w-md justify-center pt-32 text-white">
-          ✨ Start here ✨
-          {/* <p className="text-2xl text-white">
-            {hello.data ? hello.data.greeting : "Loading tRPC query..."}
-          </p> */}
+          <TodosContext>
+          <main className="mx-auto max-w-md justify-center pt-32 text-white">
+          <input
+            type="text"
+            placeholder="Add todo Item"
+            className="border-b border-charcoal-600 bg-transparent bg-none py-2"
+            onKeyDown={handleKeypress}
+            value={newTodoInput}
+            onChange={handleNewTodoChange}
+          />
+
+          <ul className="mt-2">
+            {todos.map((todo) => {
+              if(todo.children?.length >= 1) {
+                <TodoItem todos={todos} />
+              }
+              return (
+                
+              )
+            })}
+          </ul>
         </main>
+          </TodosContext>
       </div>
     </>
   );
