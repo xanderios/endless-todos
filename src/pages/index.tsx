@@ -41,10 +41,10 @@ export default function Home() {
         <div className="bg-charcoal-800 p-5 text-center">
           <h1 className="text-2xl font-bold tracking-wide">Endless Todos</h1>
         </div>
-        <main className="mx-auto w-full max-w-md justify-center pt-32">
+        <main className="container mx-auto w-full max-w-md px-4 pt-32">
           {todosWithoutParent.length >= 1 &&
-            todosWithoutParent.map(([id, todo]) => (
-              <TodoItem key={id} todo={todo} />
+            todosWithoutParent.map(([id, todo], index) => (
+              <TodoItem key={id} {...{ todo, index }} />
             ))}
 
           <input
@@ -55,7 +55,7 @@ export default function Home() {
             onChange={(e) => setNewTodoText(e.target.value)}
             onKeyDown={handleKeypress}
             className={twMerge(
-              "w-full rounded bg-charcoal-800 px-2 py-1 focus:outline-none"
+              "w-full rounded bg-charcoal-800/50 px-2 py-1 focus:outline-none"
             )}
           />
         </main>
