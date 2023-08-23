@@ -100,7 +100,6 @@ export function TodosProvider({ children }: TodosProviderProps) {
       if (!parentTodo) return;
 
       const indexInsideParent = parentTodo.children.indexOf(todoId);
-      if (indexInsideParent < 1) return;
 
       const updatedParentChildren = [...parentTodo.children];
       updatedParentChildren.splice(indexInsideParent, 1);
