@@ -1,54 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { type Todo, useTodos } from "~/contexts/TodosContext";
 
 type Props = {
   todo: Todo;
-  indentLevel: number;
 };
 
-export function TodoItem({ todo, indentLevel }: Props) {
-  const { completeTodo, changeTodoText, indentTodo } = useTodos();
+export function TodoItem({ todo }: Props) {
+  const { editTodo, todos, indentTodo, unindentTodo } = useTodos();
+  const [editedText, setEditedText] = useState(todo?.text ?? "");
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Tab") {
-      e.preventDefault();
-      indentTodo(todo.id);
+  const handleEditTodo = () => {
+    editTodo(todo.id, "text", editedText);
+  };
+
+  const handleToggleComplete = () => {
+    editTodo(todo.id, "completed", !todo.completed);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.code === "Tab") {
+      event.preventDefault();
+      if (event.shiftKey) {
+        // console.log("Shift + Tab");
+        unindentTodo(todo.id);
+      }
+      if (!event.shiftKey) {
+        // console.log("Tab");
+        indentTodo(todo.id);
+      }
     }
   };
 
   return (
-    <li style={{ marginLeft: `${indentLevel * 20}px` }} key={todo.id}>
-      <div className="flex gap-2">
+    <div>
+      <div className="mb-2 flex items-center gap-2 opacity-50 transition-opacity hover:opacity-100">
         <input
           type="checkbox"
-          onChange={() => {
-            completeTodo(todo.id);
-          }}
+          onChange={handleToggleComplete}
           checked={todo.completed}
+          className="h-4 w-4"
         />
         <input
+          type="text"
           disabled={todo.completed}
-          onKeyDown={(event) => handleKeyDown(event)}
-          onChange={(event) => changeTodoText(event, todo.id)}
-          value={todo.text}
+          onChange={(e) => setEditedText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={handleEditTodo}
+          value={editedText}
           className={twMerge(
-            "border-none bg-transparent disabled:opacity-50",
+            "border-none bg-transparent focus:outline-none disabled:opacity-50",
             todo.completed && "line-through"
           )}
         />
       </div>
-      {todo.children.length >= 1 && (
-        <ul>
-          {todo.children.map((nestedTodo) => (
-            <TodoItem
-              key={nestedTodo.id}
-              todo={nestedTodo}
-              indentLevel={indentLevel + 1}
-            />
-          ))}
-        </ul>
-      )}
-    </li>
+
+      <div className="ml-4">
+        {todo.children.map((childId) => {
+          const childTodo = todos.get(childId);
+
+          if (childTodo) {
+            return <TodoItem key={childTodo.id} todo={childTodo} />;
+          }
+
+          return null;
+        })}
+      </div>
+    </div>
   );
 }
